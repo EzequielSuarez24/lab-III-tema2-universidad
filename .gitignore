@@ -2,10 +2,6 @@
 target/
 .mvn/wrapper/maven-wrapper.jar
 
-# Java
-*.class
-*.log
-
 # IDEs
 .idea/
 *.iml
@@ -17,3 +13,4 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+EOF
