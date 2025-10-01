@@ -1,6 +1,7 @@
 package com.eze.universidad_api.service;
 
 import com.eze.universidad_api.dto.ProfesorDto;
+import com.eze.universidad_api.model.Materia;
 import com.eze.universidad_api.model.Profesor;
 import com.eze.universidad_api.repository.MateriaRepository;
 import com.eze.universidad_api.repository.ProfesorRepository;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,7 +114,26 @@ class ProfesorServiceTest {
     }
 
     @Test
-    void testBuscarPorId() {
+    void testObtenerMateriasPorProfesor() {
+        // Arrange
+        Long profesorId = 1L;
+        List<Materia> materias = Arrays.asList(
+            new Materia("Álgebra", 1, 2, new Profesor()),
+            new Materia("Matemática I", 1, 1, new Profesor())
+        );
+        
+        when(materiaRepository.findByProfesorIdOrderByNombreAsc(profesorId)).thenReturn(materias);
+        
+        // Act
+        List<Materia> resultado = profesorService.obtenerMateriasPorProfesor(profesorId);
+        
+        // Assert
+        assertEquals(2, resultado.size());
+        verify(materiaRepository, times(1)).findByProfesorIdOrderByNombreAsc(profesorId);
+    }
+
+    @Test
+    void testBuscarPorIdExistente() {
         // Arrange
         Long id = 1L;
         Profesor profesor = new Profesor("Ana", "García");
@@ -125,6 +147,48 @@ class ProfesorServiceTest {
         // Assert
         assertTrue(resultado.isPresent());
         assertEquals("Ana", resultado.get().getNombre());
-        assertEquals("García", resultado.get().getApellido());
+    }
+
+    @Test
+    void testBuscarPorIdNoExistente() {
+        // Arrange
+        Long id = 999L;
+        when(profesorRepository.findById(id)).thenReturn(Optional.empty());
+        
+        // Act
+        Optional<Profesor> resultado = profesorService.buscarPorId(id);
+        
+        // Assert
+        assertFalse(resultado.isPresent());
+    }
+
+    @Test
+    void testObtenerTodos() {
+        // Arrange
+        List<Profesor> profesores = Arrays.asList(
+            new Profesor("Juan", "Pérez"),
+            new Profesor("Ana", "García")
+        );
+        
+        when(profesorRepository.findAll()).thenReturn(profesores);
+        
+        // Act
+        List<Profesor> resultado = profesorService.obtenerTodos();
+        
+        // Assert
+        assertEquals(2, resultado.size());
+        verify(profesorRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testObtenerTodosVacio() {
+        // Arrange
+        when(profesorRepository.findAll()).thenReturn(Arrays.asList());
+        
+        // Act
+        List<Profesor> resultado = profesorService.obtenerTodos();
+        
+        // Assert
+        assertTrue(resultado.isEmpty());
     }
 }

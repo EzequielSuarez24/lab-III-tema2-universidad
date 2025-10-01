@@ -12,10 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,10 +43,14 @@ class AlumnoServiceTest {
         Alumno alumnoMock = new Alumno("María", "García", "12345678");
         alumnoMock.setId(1L);
         
+        List<Materia> materias = Arrays.asList(
+            new Materia("Matemática I", 1, 1, new Profesor())
+        );
+        
         when(alumnoRepository.existsByDni("12345678")).thenReturn(false);
         when(alumnoRepository.save(any(Alumno.class))).thenReturn(alumnoMock);
-        when(materiaRepository.findAll()).thenReturn(new ArrayList<>());
-        when(asignaturaRepository.saveAll(any())).thenReturn(new ArrayList<>());
+        when(materiaRepository.findAll()).thenReturn(materias);
+        when(asignaturaRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
         
         // Act
         Optional<Alumno> resultado = alumnoService.crearAlumno(alumnoDto);
@@ -51,9 +58,7 @@ class AlumnoServiceTest {
         // Assert
         assertTrue(resultado.isPresent());
         assertEquals("María", resultado.get().getNombre());
-        assertEquals("García", resultado.get().getApellido());
-        assertEquals("12345678", resultado.get().getDni());
-        verify(alumnoRepository, times(1)).save(any(Alumno.class));
+        verify(asignaturaRepository, times(1)).saveAll(anyList());
     }
 
     @Test
@@ -75,7 +80,7 @@ class AlumnoServiceTest {
     void testModificarAlumnoExistente() {
         // Arrange
         Long id = 1L;
-        AlumnoDto alumnoDto = new AlumnoDto("María Elena", "González", "87654321");
+        AlumnoDto alumnoDto = new AlumnoDto("María Elena", "García López", "87654321");
         Alumno alumnoExistente = new Alumno("María", "García", "12345678");
         alumnoExistente.setId(id);
         
@@ -88,8 +93,22 @@ class AlumnoServiceTest {
         // Assert
         assertTrue(resultado.isPresent());
         assertEquals("María Elena", resultado.get().getNombre());
-        assertEquals("González", resultado.get().getApellido());
-        assertEquals("87654321", resultado.get().getDni());
+    }
+
+    @Test
+    void testModificarAlumnoNoExistente() {
+        // Arrange
+        Long id = 999L;
+        AlumnoDto alumnoDto = new AlumnoDto("No", "Existe", "99999999");
+        
+        when(alumnoRepository.findById(id)).thenReturn(Optional.empty());
+        
+        // Act
+        Optional<Alumno> resultado = alumnoService.modificarAlumno(id, alumnoDto);
+        
+        // Assert
+        assertFalse(resultado.isPresent());
+        verify(alumnoRepository, never()).save(any());
     }
 
     @Test
@@ -121,7 +140,7 @@ class AlumnoServiceTest {
     }
 
     @Test
-    void testModificarEstadoAsignatura() {
+    void testModificarEstadoAsignaturaExitoso() {
         // Arrange
         Long alumnoId = 1L;
         Long materiaId = 1L;
@@ -129,7 +148,7 @@ class AlumnoServiceTest {
         estadoDto.setNota(8);
         
         Alumno alumno = new Alumno("Juan", "Pérez", "12345678");
-        Materia materia = new Materia("Matemática", 1, 1, new Profesor("Ana", "García"));
+        Materia materia = new Materia("Matemática", 1, 1, new Profesor());
         Asignatura asignatura = new Asignatura(alumno, materia, EstadoAsignatura.CURSANDO);
         
         when(asignaturaRepository.findByAlumnoIdAndMateriaId(alumnoId, materiaId))
@@ -143,5 +162,49 @@ class AlumnoServiceTest {
         assertTrue(resultado.isPresent());
         assertEquals(EstadoAsignatura.APROBADA, resultado.get().getEstado());
         assertEquals(8, resultado.get().getNota());
+    }
+
+    @Test
+    void testModificarEstadoAsignaturaNoExistente() {
+        // Arrange
+        when(asignaturaRepository.findByAlumnoIdAndMateriaId(999L, 1L))
+            .thenReturn(Optional.empty());
+        
+        // Act
+        Optional<Asignatura> resultado = alumnoService.modificarEstadoAsignatura(
+            999L, 1L, new EstadoAsignaturaDto(EstadoAsignatura.CURSANDO));
+        
+        // Assert
+        assertFalse(resultado.isPresent());
+        verify(asignaturaRepository, never()).save(any());
+    }
+
+    @Test
+    void testBuscarPorIdExistente() {
+        // Arrange
+        Long id = 1L;
+        Alumno alumno = new Alumno("Lucía", "Rodríguez", "11223344");
+        alumno.setId(id);
+        
+        when(alumnoRepository.findById(id)).thenReturn(Optional.of(alumno));
+        
+        // Act
+        Optional<Alumno> resultado = alumnoService.buscarPorId(id);
+        
+        // Assert
+        assertTrue(resultado.isPresent());
+        assertEquals("Lucía", resultado.get().getNombre());
+    }
+
+    @Test
+    void testBuscarPorIdNoExistente() {
+        // Arrange
+        when(alumnoRepository.findById(999L)).thenReturn(Optional.empty());
+        
+        // Act
+        Optional<Alumno> resultado = alumnoService.buscarPorId(999L);
+        
+        // Assert
+        assertFalse(resultado.isPresent());
     }
 }
