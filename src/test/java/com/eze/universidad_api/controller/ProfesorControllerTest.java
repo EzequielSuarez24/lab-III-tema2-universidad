@@ -35,14 +35,14 @@ class ProfesorControllerTest {
 
     @Test
     void testCrearProfesorExitoso() throws Exception {
-        // Arrange
+        
         ProfesorDto dto = new ProfesorDto("Juan", "Pérez");
         Profesor profesor = new Profesor("Juan", "Pérez");
         profesor.setId(1L);
         
         when(profesorService.crearProfesor(any(ProfesorDto.class))).thenReturn(profesor);
         
-        // Act & Assert
+        
         mockMvc.perform(post("/profesor")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
@@ -54,10 +54,10 @@ class ProfesorControllerTest {
 
     @Test
     void testCrearProfesorConError() throws Exception {
-        // Arrange
+        
         when(profesorService.crearProfesor(any())).thenThrow(new RuntimeException("Error"));
         
-        // Act & Assert
+
         mockMvc.perform(post("/profesor")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"Juan\",\"apellido\":\"Pérez\"}"))
@@ -66,14 +66,13 @@ class ProfesorControllerTest {
 
     @Test
     void testModificarProfesorExitoso() throws Exception {
-        // Arrange
+   
         Profesor profesor = new Profesor("Juan Carlos", "Pérez");
         profesor.setId(1L);
         
         when(profesorService.modificarProfesor(eq(1L), any(ProfesorDto.class)))
             .thenReturn(Optional.of(profesor));
-        
-        // Act & Assert
+
         mockMvc.perform(put("/profesor/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"Juan Carlos\",\"apellido\":\"Pérez\"}"))
@@ -83,11 +82,11 @@ class ProfesorControllerTest {
 
     @Test
     void testModificarProfesorNoExistente() throws Exception {
-        // Arrange
+
         when(profesorService.modificarProfesor(eq(999L), any(ProfesorDto.class)))
             .thenReturn(Optional.empty());
         
-        // Act & Assert
+ 
         mockMvc.perform(put("/profesor/999")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\":\"No\",\"apellido\":\"Existe\"}"))
@@ -96,27 +95,27 @@ class ProfesorControllerTest {
 
     @Test
     void testEliminarProfesorExitoso() throws Exception {
-        // Arrange
+     
         when(profesorService.eliminarProfesor(1L)).thenReturn(true);
         
-        // Act & Assert
+     
         mockMvc.perform(delete("/profesor/1"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void testEliminarProfesorNoExistente() throws Exception {
-        // Arrange
+    
         when(profesorService.eliminarProfesor(999L)).thenReturn(false);
         
-        // Act & Assert
+   
         mockMvc.perform(delete("/profesor/999"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void testObtenerTodosLosProfesores() throws Exception {
-        // Arrange
+    
         List<Profesor> profesores = Arrays.asList(
             new Profesor("Juan", "Pérez"),
             new Profesor("Ana", "García")
@@ -126,7 +125,7 @@ class ProfesorControllerTest {
         
         when(profesorService.obtenerTodos()).thenReturn(profesores);
         
-        // Act & Assert
+  
         mockMvc.perform(get("/profesor"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -136,7 +135,7 @@ class ProfesorControllerTest {
 
     @Test
     void testObtenerMateriasPorProfesorExitoso() throws Exception {
-        // Arrange
+     
         Profesor profesor = new Profesor("Juan", "Pérez");
         profesor.setId(1L);
         
@@ -148,7 +147,7 @@ class ProfesorControllerTest {
         when(profesorService.buscarPorId(1L)).thenReturn(Optional.of(profesor));
         when(profesorService.obtenerMateriasPorProfesor(1L)).thenReturn(materias);
         
-        // Act & Assert
+       
         mockMvc.perform(get("/profesor/1/materias"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
@@ -156,24 +155,24 @@ class ProfesorControllerTest {
 
     @Test
     void testObtenerMateriasPorProfesorNoExistente() throws Exception {
-        // Arrange
+        
         when(profesorService.buscarPorId(999L)).thenReturn(Optional.empty());
         
-        // Act & Assert
+       
         mockMvc.perform(get("/profesor/999/materias"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void testObtenerMateriasPorProfesorSinMaterias() throws Exception {
-        // Arrange
+
         Profesor profesor = new Profesor("Sin", "Materias");
         profesor.setId(1L);
         
         when(profesorService.buscarPorId(1L)).thenReturn(Optional.of(profesor));
         when(profesorService.obtenerMateriasPorProfesor(1L)).thenReturn(Arrays.asList());
         
-        // Act & Assert
+        
         mockMvc.perform(get("/profesor/1/materias"))
                 .andExpect(status().isNoContent());
     }

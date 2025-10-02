@@ -20,7 +20,7 @@ class AsignaturaRepositoryTest {
 
     @Test
     void testFindByAlumnoIdAndMateriaIdCuandoExiste() {
-        // Arrange
+       
         Profesor profesor = new Profesor("Juan", "Pérez");
         entityManager.persist(profesor);
         
@@ -33,21 +33,19 @@ class AsignaturaRepositoryTest {
         Asignatura asignatura = new Asignatura(alumno, materia, EstadoAsignatura.NO_CURSADA);
         entityManager.persistAndFlush(asignatura);
         
-        // Act
+
         Optional<Asignatura> resultado = asignaturaRepository.findByAlumnoIdAndMateriaId(
             alumno.getId(), materia.getId());
         
-        // Assert
+  
         assertTrue(resultado.isPresent());
         assertEquals(EstadoAsignatura.NO_CURSADA, resultado.get().getEstado());
     }
 
     @Test
     void testFindByAlumnoIdAndMateriaIdCuandoNoExiste() {
-        // Act
         Optional<Asignatura> resultado = asignaturaRepository.findByAlumnoIdAndMateriaId(999L, 999L);
         
-        // Assert
         assertFalse(resultado.isPresent());
     }
 

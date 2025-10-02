@@ -29,7 +29,7 @@ public class Profesor {
         this.apellido = apellido;
     }
     
-    // Getters y Setters (mantener todos iguales)
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

@@ -32,7 +32,6 @@ class MateriaServiceTest {
 
     @Test
     void testCrearMateriaExitosoSinCorrelativas() {
-        // Arrange
         MateriaDto materiaDto = new MateriaDto();
         materiaDto.setNombre("Matemática I");
         materiaDto.setAnio(1);
@@ -48,11 +47,9 @@ class MateriaServiceTest {
         
         when(profesorRepository.findById(1L)).thenReturn(Optional.of(profesor));
         when(materiaRepository.save(any(Materia.class))).thenReturn(materiaMock);
-        
-        // Act
+
         Optional<Materia> resultado = materiaService.crearMateria(materiaDto);
-        
-        // Assert
+
         assertTrue(resultado.isPresent());
         assertEquals("Matemática I", resultado.get().getNombre());
         verify(materiaRepository, times(1)).save(any(Materia.class));
@@ -60,7 +57,7 @@ class MateriaServiceTest {
 
     @Test
     void testCrearMateriaConCorrelativas() {
-        // Arrange
+
         MateriaDto materiaDto = new MateriaDto();
         materiaDto.setNombre("Matemática II");
         materiaDto.setAnio(2);
@@ -81,33 +78,31 @@ class MateriaServiceTest {
         when(materiaRepository.findById(3L)).thenReturn(Optional.of(correlativa2));
         when(materiaRepository.save(any(Materia.class))).thenReturn(materiaMock);
         
-        // Act
+
         Optional<Materia> resultado = materiaService.crearMateria(materiaDto);
         
-        // Assert
+
         assertTrue(resultado.isPresent());
         assertEquals("Matemática II", resultado.get().getNombre());
     }
 
     @Test
     void testCrearMateriaProfesorNoExiste() {
-        // Arrange
+
         MateriaDto materiaDto = new MateriaDto();
         materiaDto.setProfesorId(999L);
         
         when(profesorRepository.findById(999L)).thenReturn(Optional.empty());
-        
-        // Act
+
         Optional<Materia> resultado = materiaService.crearMateria(materiaDto);
-        
-        // Assert
+
         assertFalse(resultado.isPresent());
         verify(materiaRepository, never()).save(any());
     }
 
     @Test
     void testCrearMateriaCorrelativasNulas() {
-        // Arrange
+
         MateriaDto materiaDto = new MateriaDto();
         materiaDto.setNombre("Sin Correlativas");
         materiaDto.setAnio(1);
@@ -120,46 +115,43 @@ class MateriaServiceTest {
         
         when(profesorRepository.findById(1L)).thenReturn(Optional.of(profesor));
         when(materiaRepository.save(any(Materia.class))).thenReturn(materiaMock);
-        
-        // Act
+
         Optional<Materia> resultado = materiaService.crearMateria(materiaDto);
-        
-        // Assert
+
         assertTrue(resultado.isPresent());
     }
 
     @Test
     void testBuscarPorIdExistente() {
-        // Arrange
         Long id = 1L;
         Materia materia = new Materia("Física I", 2, 1, new Profesor());
         materia.setId(id);
         
         when(materiaRepository.findById(id)).thenReturn(Optional.of(materia));
         
-        // Act
+
         Optional<Materia> resultado = materiaService.buscarPorId(id);
         
-        // Assert
+
         assertTrue(resultado.isPresent());
         assertEquals("Física I", resultado.get().getNombre());
     }
 
     @Test
     void testBuscarPorIdNoExistente() {
-        // Arrange
+
         when(materiaRepository.findById(999L)).thenReturn(Optional.empty());
         
-        // Act
+
         Optional<Materia> resultado = materiaService.buscarPorId(999L);
         
-        // Assert
+
         assertFalse(resultado.isPresent());
     }
 
     @Test
     void testObtenerTodasLasMaterias() {
-        // Arrange
+
         List<Materia> materias = Arrays.asList(
             new Materia("Math", 1, 1, new Profesor()),
             new Materia("Physics", 1, 2, new Profesor())
@@ -167,23 +159,23 @@ class MateriaServiceTest {
         
         when(materiaRepository.findAll()).thenReturn(materias);
         
-        // Act
+
         List<Materia> resultado = materiaService.obtenerTodasLasMaterias();
         
-        // Assert
+
         assertEquals(2, resultado.size());
         verify(materiaRepository, times(1)).findAll();
     }
 
     @Test
     void testObtenerTodasLasMateriasVacio() {
-        // Arrange
+
         when(materiaRepository.findAll()).thenReturn(Arrays.asList());
         
-        // Act
+
         List<Materia> resultado = materiaService.obtenerTodasLasMaterias();
         
-        // Assert
+
         assertTrue(resultado.isEmpty());
     }
 }

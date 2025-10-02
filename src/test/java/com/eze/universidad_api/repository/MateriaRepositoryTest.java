@@ -50,19 +50,19 @@ class MateriaRepositoryTest {
         Profesor profesor = new Profesor("Sin", "Materias");
         entityManager.persistAndFlush(profesor);
         
-        // Act
+        
         List<Materia> resultado = materiaRepository.findByProfesorIdOrderByNombreAsc(profesor.getId());
         
-        // Assert
+
         assertTrue(resultado.isEmpty());
     }
 
     @Test
     void testFindByProfesorIdOrderByNombreAscProfesorInexistente() {
-        // Act
+        
         List<Materia> resultado = materiaRepository.findByProfesorIdOrderByNombreAsc(999L);
         
-        // Assert
+
         assertTrue(resultado.isEmpty());
     }
 }
